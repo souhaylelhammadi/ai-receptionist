@@ -1,0 +1,14 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.env
+
+# Alembic (on garde les migrations, mais pas les caches)
+
+# Node (pour le frontend plus tard)
+node_modules/
+.next/
+
+# OS
+.DS_Store
