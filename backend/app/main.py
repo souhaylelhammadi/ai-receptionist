@@ -3,8 +3,8 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.routers import auth
-from app.routers import auth, customers
+from app.routers import auth, customers, documents
+
 app = FastAPI(
     title="AI Receptionist API",
     description="API backend pour la plateforme AI Receptionist SaaS",
@@ -12,16 +12,16 @@ app = FastAPI(
 )
 
 app.include_router(auth.router)
+app.include_router(customers.router)
+app.include_router(documents.router)
 
 
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
 
-app.include_router(auth.router)
-app.include_router(customers.router)
+
 @app.get("/health/db")
 def health_check_db(db: Session = Depends(get_db)):
     db.execute(text("SELECT 1"))
     return {"status": "ok", "database": "connected"}
-
