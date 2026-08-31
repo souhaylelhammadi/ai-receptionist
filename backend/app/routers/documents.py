@@ -6,8 +6,11 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
 from app.models.document import Document
+from app.models.document_chunk import DocumentChunk
 from app.schemas.document import DocumentCreate, DocumentResponse, DocumentListItem
 from app.core.deps import get_current_user
+from app.services.chunking import split_text_into_chunks
+from app.services.embeddings import generate_embeddings_batch
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -18,12 +21,32 @@ def create_document(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    # 1. Crée le document (le texte source complet)
     document = Document(
         title=payload.title,
         content=payload.content,
         company_id=current_user.company_id,
     )
     db.add(document)
+    db.flush()  # récupère document.id avant le commit final
+
+    # 2. Découpe le contenu en chunks
+    chunks_text = split_text_into_chunks(payload.content)
+
+    # 3. Génère les embeddings pour tous les chunks en un seul appel API
+    embeddings = generate_embeddings_batch(chunks_text)
+
+    # 4. Sauvegarde chaque chunk avec son embedding
+    for index, (chunk_text, embedding) in enumerate(zip(chunks_text, embeddings)):
+        chunk = DocumentChunk(
+            content=chunk_text,
+            chunk_index=index,
+            embedding=embedding,
+            document_id=document.id,
+            company_id=current_user.company_id,
+        )
+        db.add(chunk)
+
     db.commit()
     db.refresh(document)
     return document
@@ -71,6 +94,6 @@ def delete_document(
     )
     if document is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document introuvable.")
-    db.delete(document)
+    db.delete(document)  # les chunks liés seront orphelins ; on gérera le cascade proprement plus tard
     db.commit()
     return None
