@@ -1,4 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
+from app.database import get_db
 
 app = FastAPI(
     title="AI Receptionist API",
@@ -9,8 +13,10 @@ app = FastAPI(
 
 @app.get("/health")
 def health_check():
-    """
-    Endpoint simple pour vérifier que le serveur backend est en ligne.
-    Utilisé plus tard par Docker/monitoring pour surveiller l'API.
-    """
     return {"status": "ok"}
+
+
+@app.get("/health/db")
+def health_check_db(db: Session = Depends(get_db)):
+    db.execute(text("SELECT 1"))
+    return {"status": "ok", "database": "connected"}
