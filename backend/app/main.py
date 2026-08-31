@@ -3,12 +3,15 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.routers import auth
 
 app = FastAPI(
     title="AI Receptionist API",
     description="API backend pour la plateforme AI Receptionist SaaS",
     version="0.1.0",
 )
+
+app.include_router(auth.router)
 
 
 @app.get("/health")
