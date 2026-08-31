@@ -10,7 +10,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from app.config import settings
 from app.database import Base
-from app.models import Company, User  # noqa: F401 - nécessaire pour qu'Alembic détecte les modèles
+from app.models import Company, User, Customer  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
