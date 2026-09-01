@@ -10,6 +10,9 @@ class Settings:
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 60 * 24
 
+    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY")
+    CHAT_MODEL: str = "openai/gpt-oss-120b"
+
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
     EMBEDDING_DIMENSIONS: int = 384
 

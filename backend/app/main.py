@@ -3,7 +3,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.routers import auth, customers, documents
+from app.routers import auth, customers, documents, chat
 
 app = FastAPI(
     title="AI Receptionist API",
@@ -14,6 +14,7 @@ app = FastAPI(
 app.include_router(auth.router)
 app.include_router(customers.router)
 app.include_router(documents.router)
+app.include_router(chat.router)
 
 
 @app.get("/health")
